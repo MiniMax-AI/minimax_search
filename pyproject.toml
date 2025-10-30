@@ -1,0 +1,27 @@
+[project]
+name = "minimax-search"
+version = "1.0.0"
+description = "MiniMax Search MCP Server - 强大的网页搜索和浏览工具（标准 MCP 实现）"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp[cli]>=1.0.0",
+    "requests>=2.31.0",
+    "pydantic>=2.0.0",
+    "pyyaml>=6.0",
+    "openai>=1.0.0",
+    "transformers>=4.30.0",
+]
+
+[project.scripts]
+minimax-search = "server:main"
+
+# 注意：现在使用标准 MCP Server 实现，而不是 FastMCP
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]
+
