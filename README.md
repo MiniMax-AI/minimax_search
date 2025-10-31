@@ -10,7 +10,6 @@ This project uses the **standard MCP Server protocol**, compliant with MCP speci
 - ✅ Complete `list_tools()` implementation
 - ✅ Complete `call_tool()` implementation  
 - ✅ Standard `stdio_server()` communication
-- ✅ Fully consistent with tooltool implementation
 
 ## Features
 
