@@ -10,7 +10,6 @@ MiniMax Search 是一个MCP (Model Context Protocol) 服务器，提供网页搜
 - ✅ 完整的 `list_tools()` 实现
 - ✅ 完整的 `call_tool()` 实现  
 - ✅ 标准 `stdio_server()` 通信
-- ✅ 与 tooltool 实现方式完全一致
 
 ## 特性
 
