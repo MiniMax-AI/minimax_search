@@ -26,7 +26,7 @@ This project uses the **standard MCP Server protocol**, compliant with MCP speci
 
 ```bash
 # Run directly from Git repository
-uvx --from git+ssh://git@github.com:MiniMax-AI/minimax_search.git minimax-search
+uvx --from git+ssh://git@github.com:MiniMax-AI/minimax_search.git minimax-search 
 ```
 
 ### Install via Local Path (Development)
