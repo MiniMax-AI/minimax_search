@@ -28,22 +28,26 @@ except ImportError:
     print("Please install mcp package: pip install mcp", file=sys.stderr)
     sys.exit(1)
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+# Configure logging - output to stderr to avoid polluting stdout (JSON-RPC)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    stream=sys.stderr,
+)
 logger = logging.getLogger("minimax_search")
 
 
 class MinimaxSearchMCPServer:
     """MiniMax Search MCP Server Implementation (Standard MCP Protocol)"""
-    
+
     def __init__(self):
         self.app = Server("minimax_search")
         self._setup_tools()
         logger.info("MiniMax Search MCP Server initialized")
-    
+
     def _setup_tools(self):
         """Setup MCP tools (Standard MCP Protocol)"""
-        
+
         @self.app.list_tools()
         async def handle_list_tools() -> List[Tool]:
             """List all available tools (MCP Standard Protocol)"""
@@ -57,13 +61,11 @@ class MinimaxSearchMCPServer:
                             "queries": {
                                 "type": "array",
                                 "description": "The queries. Google advanced search operators are supported.",
-                                "items": {
-                                    "type": "string"
-                                }
+                                "items": {"type": "string"},
                             },
                         },
-                        "required": ["queries"]
-                    }
+                        "required": ["queries"],
+                    },
                 ),
                 Tool(
                     name="browse",
@@ -74,25 +76,23 @@ class MinimaxSearchMCPServer:
                             "urls": {
                                 "type": "array",
                                 "description": "The url list.",
-                                "items": {
-                                    "type": "string"
-                                }
+                                "items": {"type": "string"},
                             },
                             "query": {
                                 "type": "string",
-                                "description": "The query. A detailed natural language query is recommended."
-                            }
+                                "description": "The query. A detailed natural language query is recommended.",
+                            },
                         },
-                        "required": ["urls", "query"]
-                    }
-                )
+                        "required": ["urls", "query"],
+                    },
+                ),
             ]
-        
+
         @self.app.call_tool()
         async def handle_call_tool(name: str, arguments: dict) -> List[TextContent]:
             """Handle tool calls (MCP Standard Protocol)"""
             logger.info(f"Calling tool: {name}, arguments: {arguments}")
-            
+
             try:
                 if name == "search":
                     result = get_searches_results(
@@ -100,31 +100,34 @@ class MinimaxSearchMCPServer:
                     )
                 elif name == "browse":
                     result = get_browses_results(
-                        urls=arguments["urls"],
-                        browse_query=arguments["query"]
+                        urls=arguments["urls"], browse_query=arguments["query"]
                     )
                 else:
-                    result = json.dumps({
-                        "success": False,
-                        "error": f"Unknown tool: {name}",
-                        "message": "Tool does not exist"
-                    }, ensure_ascii=False, indent=2)
-                
+                    result = json.dumps(
+                        {
+                            "success": False,
+                            "error": f"Unknown tool: {name}",
+                            "message": "Tool does not exist",
+                        },
+                        ensure_ascii=False,
+                        indent=2,
+                    )
+
                 # Format output
                 if isinstance(result, str):
                     output_text = result
                 else:
                     output_text = json.dumps(result, ensure_ascii=False, indent=2)
-                
+
                 logger.info(f"Tool {name} executed successfully")
                 return [TextContent(type="text", text=output_text)]
-                
+
             except Exception as e:
                 logger.error(f"Error handling tool call {name}: {e}", exc_info=True)
                 error_result = {
                     "success": False,
                     "error": str(e),
-                    "message": f"Error occurred while executing tool {name}"
+                    "message": f"Error occurred while executing tool {name}",
                 }
                 error_text = json.dumps(error_result, ensure_ascii=False, indent=2)
                 return [TextContent(type="text", text=error_text)]
@@ -133,10 +136,10 @@ class MinimaxSearchMCPServer:
 async def async_main():
     """Async main function - Start MiniMax Search MCP Server"""
     logger.info("Starting MiniMax Search MCP Server...")
-    
+
     try:
         server = MinimaxSearchMCPServer()
-        
+
         # Run server via stdio (Standard MCP Protocol)
         async with stdio_server() as (read_stream, write_stream):
             await server.app.run(
@@ -147,11 +150,11 @@ async def async_main():
                     server_version="1.0.0",
                     capabilities=server.app.get_capabilities(
                         notification_options=NotificationOptions(),
-                        experimental_capabilities={}
-                    )
-                )
+                        experimental_capabilities={},
+                    ),
+                ),
             )
-            
+
     except Exception as e:
         logger.error(f"Failed to start server: {e}", exc_info=True)
         raise
